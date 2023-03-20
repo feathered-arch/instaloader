@@ -295,7 +295,7 @@ class InstaloaderContext:
     def do_sleep(self):
         """Sleep a short time if self.sleep is set. Called before each request to instagram.com."""
         if self.sleep:
-            time.sleep(min(random.expovariate(0.6), 15.0))
+            time.sleep(max(min(random.expovariate(0.6), 20.0), 6.0))
 
     def get_json(self, path: str, params: Dict[str, Any], host: str = 'www.instagram.com',
                  session: Optional[requests.Session] = None, _attempt=1) -> Dict[str, Any]:
@@ -325,8 +325,8 @@ class InstaloaderContext:
             resp = sess.get('https://{0}/{1}'.format(host, path), params=params, allow_redirects=False)
             if resp.status_code in self.fatal_status_codes:
                 redirect = " redirect to {}".format(resp.headers['location']) if 'location' in resp.headers else ""
-                raise AbortDownloadException("Query to https://{}/{} responded with \"{} {}\"{}".format(
-                    host, path, resp.status_code, resp.reason, redirect
+                raise AbortDownloadException("Query to https://{}/{} responded with \"{} {}\"{}:{}".format(
+                    host, path, resp.status_code, resp.reason, redirect, resp.text
                 ))
             while resp.is_redirect:
                 redirect_url = resp.headers['location']
